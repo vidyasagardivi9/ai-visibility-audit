@@ -82,29 +82,31 @@ export function scoreCitations(data: CrawlData): CheckResult {
 }
 
 export function scoreDirectories(data: CrawlData): CheckResult {
-  const count = data.directoryLinks.length
+  const verified = data.verifiedListings || []
+  const count = verified.length
 
   if (count === 0) {
     return {
       score: 0,
       status: 'poor',
-      title: 'No directory listings detected',
-      summary: 'Your site doesn\'t link to any business directories. AI assistants learn about businesses from these sources.',
+      title: 'Not found on any major directories',
+      summary: 'We searched for your business online and couldn\'t find it listed on Google Business, Yelp, or other major directories that AI assistants use as sources.',
       details: [
-        'Not linked from Google Business, Yelp, or other directories',
-        'AI models use directory data to verify businesses',
-        'Competitors with directory listings rank higher in AI answers',
+        'Not found on Google Business Profile',
+        'Not found on Yelp, Trustpilot, or similar review platforms',
+        'AI models use directory data to verify and recommend businesses',
+        'Competitors with directory listings are recommended more often by AI',
       ],
     }
   }
 
-  const score = Math.min(100, count * 20)
+  const score = Math.min(100, count * 14)
   return {
     score,
     status: score >= 60 ? 'good' : 'warning',
-    title: `Listed on ${count} director${count === 1 ? 'y' : 'ies'}`,
-    summary: `You have links to ${count} business director${count === 1 ? 'y' : 'ies'} on your site. More is better for AI visibility.`,
-    details: data.directoryLinks.slice(0, 5).map(l => `✓ ${new URL(l).hostname}`),
+    title: `Found on ${count} platform${count === 1 ? '' : 's'} online`,
+    summary: `We found your business listed on ${count} platform${count === 1 ? '' : 's'}. ${count < 5 ? 'Adding more listings will improve your AI visibility.' : 'Good presence across multiple platforms.'}`,
+    details: verified.map(l => `✓ Listed on ${l}`),
   }
 }
 

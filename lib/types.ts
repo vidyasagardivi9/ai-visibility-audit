@@ -65,4 +65,7 @@ export interface CrawlData {
   hasPhone: boolean
   hasAddress: boolean
   hasEmail: boolean
+  verifiedListings: string[]
+  searchSnippets: string[]
+  businessName: string
 }

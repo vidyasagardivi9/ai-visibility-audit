@@ -10,27 +10,39 @@ export async function generateReport(data: CrawlData): Promise<AuditReport> {
   const directories = scoreDirectories(data)
   const overallScore = calculateOverallScore([schema.score, llmsTxt.score, citations.score, directories.score])
 
-  const prompt = `You are an expert AI visibility consultant analyzing a business website. Your job is to produce a DETAILED, SPECIFIC, ACTIONABLE report — not generic advice. Every recommendation must reference something specific you found (or didn't find) on this exact website.
+  const verifiedListings = data.verifiedListings || []
+  const searchSnippets = data.searchSnippets || []
+
+  const prompt = `You are an expert AI visibility consultant analyzing a business website. Your job is to produce a DETAILED, SPECIFIC, ACTIONABLE report — not generic advice. Every recommendation must be based ONLY on what was actually verified below — do NOT suggest fixing things that are already done.
 
 === WEBSITE DATA ===
 URL: ${data.url}
+Business Name: ${data.businessName || 'unknown'}
 Page Title: ${data.title}
 Meta Description: ${data.description}
 H1 Heading: ${data.h1}
 Page Content (first 2500 chars): ${data.bodyText.slice(0, 2500)}
 
-=== TECHNICAL AUDIT FINDINGS ===
+=== TECHNICAL AUDIT — VERIFIED FACTS (do not contradict these) ===
 Schema markup types found: ${data.jsonLdTypes.length > 0 ? data.jsonLdTypes.join(', ') : 'NONE — no structured data found at all'}
-Raw schema snippets: ${data.jsonLdRaw.slice(0, 2).join(' | ').slice(0, 500) || 'none'}
-Has llms.txt file: ${data.hasLlmsTxt ? 'YES' : 'NO — missing'}
-llms.txt content: ${data.llmsTxtContent || 'n/a'}
-robots.txt content: ${data.robotsContent.slice(0, 300) || 'not found'}
-Phone number on site: ${data.hasPhone ? 'Yes' : 'No — not found'}
-Physical address on site: ${data.hasAddress ? 'Yes' : 'No — not found'}
-Email address on site: ${data.hasEmail ? 'Yes' : 'No — not found'}
-Social media profile links found: ${data.socialLinks.length > 0 ? data.socialLinks.join(', ') : 'NONE'}
-Business directory links found: ${data.directoryLinks.length > 0 ? data.directoryLinks.join(', ') : 'NONE — not listed on any directories'}
+Has llms.txt file: ${data.hasLlmsTxt ? 'YES — present and populated' : 'NO — missing'}
+llms.txt content preview: ${data.llmsTxtContent?.slice(0, 300) || 'n/a'}
+Phone number on site: ${data.hasPhone ? 'YES — found' : 'NO — not found'}
+Physical address on site: ${data.hasAddress ? 'YES — found' : 'NO — not found'}
+Email address on site: ${data.hasEmail ? 'YES — found' : 'NO — not found'}
+Social media links on site: ${data.socialLinks.length > 0 ? data.socialLinks.join(', ') : 'none found on site'}
+
+=== VERIFIED ONLINE PRESENCE (actually searched the web for this business) ===
+Platforms where business was CONFIRMED FOUND: ${verifiedListings.length > 0 ? verifiedListings.join(', ') : 'NONE found — business not appearing in web search results for any major platforms'}
+Web search snippets about this business: ${searchSnippets.slice(0, 5).join(' | ') || 'No search results found'}
+
 Overall AI visibility score: ${overallScore}/100
+
+CRITICAL RULES:
+- If a platform is in the "CONFIRMED FOUND" list above, do NOT recommend claiming or creating that listing — they already have it
+- Only recommend actions for things that are genuinely missing or broken
+- Base everything on the verified data above — do not guess or assume
+- If they have Google Business Profile confirmed, say so and skip that recommendation
 
 === YOUR TASK ===
 Return ONLY a raw JSON object (no markdown code blocks, no explanation, just the JSON) with this exact structure. Every field must be filled with SPECIFIC details about THIS business — not generic filler text.
