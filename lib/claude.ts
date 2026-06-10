@@ -27,9 +27,9 @@ Page Content (first 2500 chars): ${data.bodyText.slice(0, 2500)}
 Schema markup types found: ${data.jsonLdTypes.length > 0 ? data.jsonLdTypes.join(', ') : 'NONE — no structured data found at all'}
 Has llms.txt file: ${data.hasLlmsTxt ? 'YES — present and populated' : 'NO — missing'}
 llms.txt content preview: ${data.llmsTxtContent?.slice(0, 300) || 'n/a'}
-Phone number on site: ${data.hasPhone ? 'YES — found' : 'NO — not found'}
-Physical address on site: ${data.hasAddress ? 'YES — found' : 'NO — not found'}
-Email address on site: ${data.hasEmail ? 'YES — found' : 'NO — not found'}
+Phone number on site: ${data.hasPhone ? `YES — found` : 'NO — not found on the page'}
+Physical address on site: ${data.hasAddress ? 'YES — found' : 'NO — not found on the page'}
+Email address on site: ${data.hasEmail ? 'YES — found' : 'NO — not found on the page'}
 Social media links on site: ${data.socialLinks.length > 0 ? data.socialLinks.join(', ') : 'none found on site'}
 
 === VERIFIED ONLINE PRESENCE (actually searched the web for this business) ===
