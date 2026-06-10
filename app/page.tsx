@@ -131,7 +131,8 @@ export default function Home() {
         setState('report')
       }
     } catch {
-      setEmailError('Failed to send email. You can still view your report below.')
+      setEmailSent(false)
+      setState('report')
     } finally {
       setSendingEmail(false)
     }

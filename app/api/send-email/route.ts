@@ -102,6 +102,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 })
     }
 
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json({ success: true, skipped: true })
+    }
+
     const resend = new Resend(process.env.RESEND_API_KEY)
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'reports@aivisibility.ai'
 
