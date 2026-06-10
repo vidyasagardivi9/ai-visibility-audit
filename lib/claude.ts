@@ -1,10 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk'
-import type { CrawlData, AuditReport, CheckResult } from './types'
+import OpenAI from 'openai'
+import type { CrawlData, AuditReport } from './types'
 import { scoreSchema, scoreLlmsTxt, scoreCitations, scoreDirectories, calculateOverallScore } from './scorer'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
 export async function generateReport(data: CrawlData): Promise<AuditReport> {
+  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   const schema = scoreSchema(data)
   const llmsTxt = scoreLlmsTxt(data)
   const citations = scoreCitations(data)
@@ -63,13 +62,13 @@ Rules:
 - No technical jargon anywhere — write for a non-technical business owner
 - Be honest about gaps, but encouraging in tone`
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o',
     max_tokens: 2000,
     messages: [{ role: 'user', content: prompt }],
   })
 
-  const content = message.content[0].type === 'text' ? message.content[0].text : ''
+  const content = response.choices[0]?.message?.content || ''
 
   let parsed: any
   try {
