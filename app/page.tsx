@@ -291,6 +291,7 @@ export default function Home() {
           <div className="bg-gray-900 rounded-2xl p-8 text-center mb-6">
             <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">AI Visibility Report</p>
             <h1 className="text-white text-2xl font-bold mb-1">{report.businessName}</h1>
+            {report.businessType && <p className="text-gray-400 text-sm mb-1">{report.businessType}</p>}
             <p className="text-gray-500 text-sm">{report.websiteUrl}</p>
           </div>
 
@@ -298,7 +299,8 @@ export default function Home() {
             <p className="text-gray-500 text-sm mb-2">Overall AI Visibility Score</p>
             <p className={`text-7xl font-bold mb-2 ${scoreColor}`}>{report.overallScore}</p>
             <p className="text-gray-400 text-sm mb-4">out of 100</p>
-            <p className="text-gray-700 text-base">{report.headline}</p>
+            <p className="text-gray-800 text-base font-medium mb-3">{report.headline}</p>
+            {report.summary && <p className="text-gray-600 text-sm text-left leading-relaxed">{report.summary}</p>}
             <div className="mt-4 inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs px-3 py-1.5 rounded-full font-medium">
               <span>✓</span> This audit is normally $297 — free for you
             </div>
@@ -306,14 +308,19 @@ export default function Home() {
 
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Platform readiness</h2>
-            <div className="space-y-4">
+            <div className="space-y-5">
               {report.platforms.map(p => (
-                <div key={p.name} className="flex items-start justify-between gap-4">
-                  <span className="font-medium text-gray-800 text-sm w-24 shrink-0">{p.name}</span>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">{p.reason}</p>
+                <div key={p.name} className="border border-gray-100 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-gray-900 text-sm">{p.name}</span>
+                    <LevelPill level={p.level} />
                   </div>
-                  <LevelPill level={p.level} />
+                  <p className="text-sm text-gray-600 mb-2">{p.reason}</p>
+                  {p.whatWouldHelp && (
+                    <div className="bg-blue-50 rounded-lg px-3 py-2">
+                      <p className="text-xs text-blue-700"><span className="font-semibold">What would help: </span>{p.whatWouldHelp}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -332,13 +339,18 @@ export default function Home() {
                     <ScoreBadge score={check.score} />
                   </div>
                   <p className="text-sm text-gray-600 mb-3">{check.summary}</p>
-                  <ul className="space-y-1">
+                  <ul className="space-y-1 mb-3">
                     {check.details.map((d, i) => (
                       <li key={i} className="text-xs text-gray-500 flex items-start gap-1.5">
                         <span className="shrink-0">·</span>{d}
                       </li>
                     ))}
                   </ul>
+                  {check.howToFix && (
+                    <div className="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
+                      <p className="text-xs text-amber-800"><span className="font-semibold">How to fix: </span>{check.howToFix}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -346,17 +358,19 @@ export default function Home() {
 
           {report.competitors.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-              <h2 className="text-base font-semibold text-gray-900 mb-4">What competitors are doing better</h2>
-              <div className="space-y-3">
+              <h2 className="text-base font-semibold text-gray-900 mb-1">What competitors are doing better</h2>
+              <p className="text-sm text-gray-500 mb-4">These businesses likely outrank you in AI search results right now.</p>
+              <div className="space-y-4">
                 {report.competitors.map((c, i) => (
-                  <div key={i} className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
-                    <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500 shrink-0 mt-0.5">
-                      {i + 1}
+                  <div key={i} className="border border-gray-100 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500 shrink-0 font-semibold">
+                        {i + 1}
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900">{c.name}</p>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{c.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{c.advantage}</p>
-                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{c.advantage}</p>
+                    {c.whyItMatters && <p className="text-xs text-gray-500 italic">{c.whyItMatters}</p>}
                   </div>
                 ))}
               </div>
@@ -364,20 +378,34 @@ export default function Home() {
           )}
 
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Your top recommendations</h2>
-            <div className="space-y-3">
+            <h2 className="text-base font-semibold text-gray-900 mb-1">Your top recommendations</h2>
+            <p className="text-sm text-gray-500 mb-4">Ranked by impact. Start with #1.</p>
+            <div className="space-y-4">
               {report.recommendations.map((r, i) => (
-                <div key={i} className="bg-gray-50 rounded-xl p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5">
+                <div key={i} className="border border-gray-100 rounded-xl p-5">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-7 h-7 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                       {i + 1}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-900 mb-1">{r.title}</p>
-                      <p className="text-sm text-gray-600 mb-2">{r.why}</p>
-                      <EffortPill effort={r.effort} />
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <p className="text-sm font-bold text-gray-900">{r.title}</p>
+                        <EffortPill effort={r.effort} />
+                      </div>
+                      <p className="text-sm text-gray-600">{r.why}</p>
                     </div>
                   </div>
+                  {r.howTo && (
+                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                      <p className="text-xs font-semibold text-gray-700 mb-1">How to do it:</p>
+                      <p className="text-xs text-gray-600 leading-relaxed">{r.howTo}</p>
+                    </div>
+                  )}
+                  {r.impact && (
+                    <div className="bg-green-50 rounded-lg px-3 py-2">
+                      <p className="text-xs text-green-700"><span className="font-semibold">Impact: </span>{r.impact}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
